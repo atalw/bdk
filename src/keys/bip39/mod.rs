@@ -843,4 +843,50 @@ mod test {
             Err(Error::InvalidEntropyLength(248))
         );
     }
+
+    #[test]
+    fn test_invalid_mnemonic() {
+        //less than 12 words
+        assert_eq!(
+            Mnemonic::parse_in(
+                Language::English,
+                "join fossil bulk soft easily give section spoon divorce ice pilot"
+            ),
+            Err(Error::InvalidWordCount(11))
+        );
+
+        //more than 24 words
+        assert_eq!(Mnemonic::parse_in(Language::English, "area secret six clutch run reject tape
+        ritual soldier mad eagle win impulse found tattoo door culture reject movie grocery resource 
+        thought please conduct gorilla"), Err(Error::InvalidWordCount(25)));
+
+        //not a multiple of six
+        assert_eq!(
+            Mnemonic::parse_in(
+                Language::English,
+                "gorilla convince minor amateur labor advance hungry
+        treat ripple bracket draft wrong found"
+            ),
+            Err(Error::InvalidWordCount(13))
+        );
+
+        //invalid word
+        assert_eq!(
+            Mnemonic::parse_in(
+                Language::English,
+                "here convince minor amateur labor advance hungry treat ripple bracket draft wrong"
+            ),
+            Err(Error::InvalidWord(String::from("here")))
+        );
+
+        //invalid checksum
+        assert_eq!(
+            Mnemonic::parse_in(
+                Language::English,
+                "gorilla convince minor amateur labor advance
+        hungry treat ripple bracket draft gorilla"
+            ),
+            Err(Error::InvalidChecksum(175))
+        );
+    }
 }
